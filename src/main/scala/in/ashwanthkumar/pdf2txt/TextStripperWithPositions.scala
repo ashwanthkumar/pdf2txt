@@ -66,7 +66,7 @@ case class Line(lineNumber: Int, tokens: List[Token]) {
   def addTokens(tokens: List[Token]): Line                       = this.copy(tokens = this.tokens ++ tokens)
   def addToken(txt: String, positions: List[TextPosition]): Line = addToken(Token(txt, positions))
 
-  def length   = tokens.map(_.length).sum
+  def length   = StringUtils.length(txt)
   def maxRight = tokens.map(_.right).max
   def minLeft  = tokens.map(_.left).min
   def txt      = StringUtils.trimToEmpty(tokens.map(_.txt).mkString(" "))
