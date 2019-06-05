@@ -1,5 +1,8 @@
 package in.ashwanthkumar.pdf2txt
 
+import java.io.{File, FileInputStream, PrintWriter}
+
+import com.twitter.scalding.Args
 import org.apache.pdfbox.pdmodel.PDDocument
 
 class PDF2Txt(pdfDocument: PDDocument, extraSpacingRatio: Float = 1.05f) {
@@ -74,4 +77,25 @@ class PDF2Txt(pdfDocument: PDDocument, extraSpacingRatio: Float = 1.05f) {
 
     stringBuilder.toString()
   }
+}
+
+// --input /path/to/input.pdf
+// --output /path/to/output.txt
+object PDF2Txt extends App {
+  val cmdArgs = Args(args)
+
+  val input  = cmdArgs("input")
+  val output = cmdArgs("output")
+
+  val outputFile = new File(output)
+  if (outputFile.exists()) {
+    println("Output file already found, deleting it and re-creating it.")
+    outputFile.delete()
+  }
+  lazy val writer = new PrintWriter(outputFile)
+
+  val pdfDocument    = TextStripperWithPositions.readFile(new FileInputStream(new File(input)))
+  val documentAsText = new PDF2Txt(pdfDocument).toText
+  writer.print(documentAsText)
+  writer.close()
 }
