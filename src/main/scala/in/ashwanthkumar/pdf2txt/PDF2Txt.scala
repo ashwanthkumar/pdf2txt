@@ -1,10 +1,14 @@
 package in.ashwanthkumar.pdf2txt
 
 import java.io.{File, FileInputStream, PrintWriter}
+import java.util.concurrent
+import java.util.concurrent.TimeUnit
 
 import com.twitter.scalding.Args
 import org.apache.commons.lang3.StringUtils
 import org.apache.pdfbox.pdmodel.PDDocument
+
+import scala.concurrent.duration.FiniteDuration
 
 class PDF2Txt(pdfDocument: PDDocument, extraSpacingRatio: Float = 1.05f) {
   def toText: String = {
@@ -96,8 +100,11 @@ object PDF2Txt extends App {
   }
   lazy val writer = new PrintWriter(outputFile)
 
+  val start =  System.nanoTime()
   val pdfDocument    = TextStripperWithPositions.readFile(new FileInputStream(new File(input)))
   val documentAsText = new PDF2Txt(pdfDocument).toText
+  val totalTime = System.nanoTime() - start
+  println(s"Processing Took: ${FiniteDuration(totalTime, TimeUnit.NANOSECONDS).toSeconds}s")
   writer.print(documentAsText)
   writer.close()
 }

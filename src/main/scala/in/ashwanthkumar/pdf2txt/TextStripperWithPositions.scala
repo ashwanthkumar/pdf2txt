@@ -13,6 +13,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 case class Token(txt: String, positions: List[TextPosition]) {
+  import Token._
   def height = positions.map(pos => pos.getHeight).max
   def right  = positions.map(pos => pos.getXDirAdj + pos.getWidth).max
   def bottom = positions.map(pos => pos.getYDirAdj + pos.getHeight).max
@@ -21,42 +22,6 @@ case class Token(txt: String, positions: List[TextPosition]) {
   def length = StringUtils.length(txt)
 
   def words = {
-    case class State(positionsSoFar: List[TextPosition] = Nil, words: List[Token] = Nil) {
-      def add(position: TextPosition) = this.copy(positionsSoFar = positionsSoFar ++ List(position))
-      def endOfCurrentWord            = record.reset
-      def record = {
-        val nonEmptyPositions = removeEmptyPositions
-        if (nonEmptyPositions.isEmpty) this
-        else
-          this.copy(
-            words = words ++ List(
-              Token(Normalizer.normalizeUnicode(nonEmptyPositions.map(_.getUnicode).mkString), nonEmptyPositions)
-            )
-          )
-      }
-      def reset = this.copy(
-        positionsSoFar = Nil
-      )
-      def isNextLinePos(newPos: TextPosition) = {
-        positionsSoFar.nonEmpty && (newPos.getXDirAdj < positionsSoFar.last.getXDirAdj)
-      }
-      def inferSpace(newPos: TextPosition) = {
-        if (positionsSoFar.nonEmpty) {
-          // if the new text position is positioned more than the average distance between the tokens so far then we infer it as a space
-          val totalWidthSoFar  = positionsSoFar.map(_.getWidth).sum
-          val avgWidthPerToken = totalWidthSoFar / positionsSoFar.length
-          val last             = positionsSoFar.last
-          val endX             = last.getXDirAdj + last.getWidth
-          val diff             = newPos.getXDirAdj - endX
-          diff > avgWidthPerToken
-        } else {
-          false
-        }
-      }
-      def removeEmptyPositions =
-        positionsSoFar.filter(pos => StringUtils.isNotBlank(StringUtils.trimToNull(pos.getUnicode)))
-    }
-
     val finalState = positions
       .foldLeft(State()) {
         case (state, pos) =>
@@ -76,6 +41,42 @@ case class Token(txt: String, positions: List[TextPosition]) {
 
 object Token {
   def apply(position: TextPosition) = new Token(position.getUnicode, List(position))
+
+  case class State(positionsSoFar: List[TextPosition] = Nil, words: List[Token] = Nil) {
+    def add(position: TextPosition) = this.copy(positionsSoFar = positionsSoFar ++ List(position))
+    def endOfCurrentWord            = record.reset
+    def record = {
+      val nonEmptyPositions = removeEmptyPositions
+      if (nonEmptyPositions.isEmpty) this
+      else
+        this.copy(
+          words = words ++ List(
+            Token(Normalizer.normalizeUnicode(nonEmptyPositions.map(_.getUnicode).mkString), nonEmptyPositions)
+          )
+        )
+    }
+    def reset = this.copy(
+      positionsSoFar = Nil
+    )
+    def isNextLinePos(newPos: TextPosition) = {
+      positionsSoFar.nonEmpty && (newPos.getXDirAdj < positionsSoFar.last.getXDirAdj)
+    }
+    def inferSpace(newPos: TextPosition) = {
+      if (positionsSoFar.nonEmpty) {
+        // if the new text position is positioned more than the average distance between the tokens so far then we infer it as a space
+        val totalWidthSoFar  = positionsSoFar.map(_.getWidth).sum
+        val avgWidthPerToken = totalWidthSoFar / positionsSoFar.length
+        val last             = positionsSoFar.last
+        val endX             = last.getXDirAdj + last.getWidth
+        val diff             = newPos.getXDirAdj - endX
+        diff > avgWidthPerToken
+      } else {
+        false
+      }
+    }
+    def removeEmptyPositions =
+      positionsSoFar.filter(pos => StringUtils.isNotBlank(StringUtils.trimToNull(pos.getUnicode)))
+  }
 }
 
 case class Line(lineNumber: Int, tokens: List[Token]) {
