@@ -128,7 +128,10 @@ class TextStripperWithPositions extends PDFTextStripper {
             ),
             current = List(token)
           )
-        } else {
+        }
+        // TODO(ashwanthkumar): While we check for position across the X-axis, we don't check the position across Y-axis today,
+        // so a token that should ideally be part of the previous line or one before that might be aligned properly
+        else {
           lastUpdates.copy(
             current = current ++ List(token)
           )
@@ -151,41 +154,9 @@ class TextStripperWithPositions extends PDFTextStripper {
     }
   }
 
-  // Note - called once per line
+  // called once per line. line as decided by pdfbox.
   override def writeString(text: String, textPositions: util.List[TextPosition]): Unit = {
     this.textPositions ++= textPositions.asScala.toList
-
-    // Delete the following once we're populating the linesToTokens in endPage
-//    println(s"Text: ${text}, positions: ${textPositions.asScala.toList}")
-//    val existingLine = lineToTokens.getOrElse(currentLine, Line(currentLine, Nil))
-//    val updatedLine  = existingLine.addToken(text, textPositions.asScala.toList)
-//    lineToTokens(currentLine) = updatedLine
-//    super.writeString(text, textPositions)
-    /// End of Delete notice
-  }
-  def writeString2(text: String, textPositions: util.List[TextPosition]): Unit = {
-    //      // Here we're assuming the document is Left-to-Right like in English language
-//      // the below approach might not work if the page is RTL
-//      val leftMostWord        = words.minBy(_.left)
-//      val rightMostWord       = words.maxBy(_.right)
-//      val maxHeightForTheLine = math.max(leftMostWord.height, rightMostWord.height)
-//      val maxTopOffset        = math.max(leftMostWord.top, rightMostWord.top)
-//
-//      val maxTopCutOff = maxTopOffset + maxHeightForTheLine
-//
-//      val (sameLineTokens, otherLines) = words.partition(t => t.top / maxTopCutOff > 0.5)
-//      println("SAME LINE")
-//      sameLineTokens.foreach(println)
-//      println("NEXT LINE")
-//      otherLines.foreach(println)
-//
-//      println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
-
-    println(s"Text: ${text}, positions: ${textPositions.asScala.toList}")
-    val existingLine = lineToTokens.getOrElse(currentLine, Line(currentLine, Nil))
-    val updatedLine  = existingLine.addToken(text, textPositions.asScala.toList)
-    lineToTokens(currentLine) = updatedLine
-    super.writeString(text, textPositions)
   }
 
   def tokensByLine = lineToTokens
