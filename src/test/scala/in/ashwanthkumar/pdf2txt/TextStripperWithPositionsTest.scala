@@ -28,7 +28,7 @@ class TextStripperWithPositionsTest extends FlatSpec {
     val stripper = new TextStripperWithPositions()
     stripper.setSortByPosition(true)
     stripper.getText(pdfDocument)
-    println(stripper.totalLines)
+//    println(stripper.totalLines)
 
     pdfDocument.close()
 
