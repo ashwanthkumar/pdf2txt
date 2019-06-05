@@ -3,8 +3,6 @@ package in.ashwanthkumar.pdf2txt
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.scalatest.FlatSpec
 
-import scala.collection.JavaConverters._
-
 class TextStripperWithPositionsTest extends FlatSpec {
   "TextStripperWithPositions" should "process 3 colum layout without any lines separating them" in {
     val pdfDocument =
@@ -34,36 +32,37 @@ class TextStripperWithPositionsTest extends FlatSpec {
 
     pdfDocument.close()
 
-    println(s"Total Lines: ${stripper.totalLines}")
+//    println(s"Total Lines: ${stripper.totalLines}")
     val lines = stripper.lineToTokens.values.toList.sortBy(_.lineNumber)
 
     val maxTxtLengthLine = lines.maxBy(_.length)
-    println("Max Txt Length Line")
-    println(maxTxtLengthLine)
-    println(s"Max Length: ${maxTxtLengthLine.length}, Token: ${maxTxtLengthLine.txt}")
-    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+//    println("Max Txt Length Line")
+//    println(maxTxtLengthLine)
+//    println(s"Max Length: ${maxTxtLengthLine.length}, Token: ${maxTxtLengthLine.txt}")
+//    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 
     val leftMostLine = lines.minBy(_.minLeft)
-    println("Left Most Line")
-    println(leftMostLine)
-    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+//    println("Left Most Line")
+//    println(leftMostLine)
+//    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 
     val rightMostLine = lines.maxBy(_.maxRight)
-    println("Right Most Line")
-    println(rightMostLine)
-    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+//    println("Right Most Line")
+//    println(rightMostLine)
+//    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 
     val leftPaddingToLineWithMostText = math.abs(leftMostLine.minLeft - maxTxtLengthLine.minLeft)
-    println(s"leftPaddingToLineWithMostText: $leftPaddingToLineWithMostText")
-    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+//    println(s"leftPaddingToLineWithMostText: $leftPaddingToLineWithMostText")
+//    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 
-    val spacingRatio = ((rightMostLine.maxRight + leftPaddingToLineWithMostText) / maxTxtLengthLine.maxRight) * 1.05f //* 1.5f
-    println(s"Spacing Ratio: $spacingRatio")
-    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+    // add an extra 5% spacing to keep the content well layout
+    val spacingRatio = ((rightMostLine.maxRight + leftPaddingToLineWithMostText) / maxTxtLengthLine.maxRight) * 1.05f
+//    println(s"Spacing Ratio: $spacingRatio")
+//    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 
     val maxTxtLengthInOutput = math.round(maxTxtLengthLine.length * spacingRatio)
-    println(s"Max Text Length in page: $maxTxtLengthInOutput")
-    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+//    println(s"Max Text Length in page: $maxTxtLengthInOutput")
+//    println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 
     val documentMatrix = Array.fill(lines.length, maxTxtLengthInOutput * 2)(' ')
 
