@@ -3,6 +3,7 @@ package in.ashwanthkumar.pdf2txt
 import java.io.{File, FileInputStream, PrintWriter}
 
 import com.twitter.scalding.Args
+import org.apache.commons.lang3.StringUtils
 import org.apache.pdfbox.pdmodel.PDDocument
 
 class PDF2Txt(pdfDocument: PDDocument, extraSpacingRatio: Float = 1.05f) {
@@ -70,8 +71,9 @@ class PDF2Txt(pdfDocument: PDDocument, extraSpacingRatio: Float = 1.05f) {
               documentMatrix(line.lineNumber - 1)(columnForTheToken + index) = c
           }
         }
+      val row = StringUtils.stripEnd(documentMatrix(line.lineNumber - 1).mkString, " ")
       stringBuilder
-        .append(documentMatrix(line.lineNumber - 1).mkString)
+        .append(row)
         .append('\n')
     }
 
