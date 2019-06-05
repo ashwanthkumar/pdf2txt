@@ -27,6 +27,13 @@ class TextStripperWithPositionsTest extends FlatSpec {
     println(document)
   }
 
+  it should "process text with bullets" in {
+    val pdfDocument = TextStripperWithPositions.readFile(getClass.getResourceAsStream("/pdfs/text_with_bullets.pdf"))
+    val document    = pdf2txt(pdfDocument)
+    println(document)
+
+  }
+
   def pdf2txt(pdfDocument: PDDocument): String = {
     new PDF2Txt(pdfDocument).toText
   }

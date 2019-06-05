@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-public class Normalizer {
-    private static final Log LOG = LogFactory.getLog(Normalizer.class);
+public class Normalizer2 {
+    private static final Log LOG = LogFactory.getLog(Normalizer2.class);
 
     /**
      * Copied verbatim from org.apache.pdfbox.text.PDFTextStripper class

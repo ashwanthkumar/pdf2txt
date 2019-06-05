@@ -30,7 +30,7 @@ case class Token(txt: String, positions: List[TextPosition]) {
         else
           this.copy(
             words = words ++ List(
-              Token(Normalizer.normalizeWord(nonEmptyPositions.map(_.getUnicode).mkString), nonEmptyPositions)
+              Token(Normalizer.normalizeUnicode(nonEmptyPositions.map(_.getUnicode).mkString), nonEmptyPositions)
             )
           )
       }
