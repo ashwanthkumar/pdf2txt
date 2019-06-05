@@ -37,6 +37,22 @@ case class Token(txt: String, positions: List[TextPosition]) {
       def reset = this.copy(
         positionsSoFar = Nil
       )
+      def isNextLinePos(newPos: TextPosition) = {
+        positionsSoFar.nonEmpty && (newPos.getXDirAdj < positionsSoFar.last.getXDirAdj)
+      }
+      def inferSpace(newPos: TextPosition) = {
+        if (positionsSoFar.nonEmpty) {
+          // if the new text position is positioned more than the average distance between the tokens so far then we infer it as a space
+          val totalWidthSoFar  = positionsSoFar.map(_.getWidth).sum
+          val avgWidthPerToken = totalWidthSoFar / positionsSoFar.length
+          val last             = positionsSoFar.last
+          val endX             = last.getXDirAdj + last.getWidth
+          val diff             = newPos.getXDirAdj - endX
+          diff > avgWidthPerToken
+        } else {
+          false
+        }
+      }
       def removeEmptyPositions =
         positionsSoFar.filter(pos => StringUtils.isNotBlank(StringUtils.trimToNull(pos.getUnicode)))
     }
@@ -44,7 +60,8 @@ case class Token(txt: String, positions: List[TextPosition]) {
     val finalState = positions
       .foldLeft(State()) {
         case (state, pos) =>
-          if (StringUtils.isWhitespace(pos.getUnicode)) state.endOfCurrentWord
+          if (StringUtils.isWhitespace(pos.getUnicode) || state.isNextLinePos(pos) || state.inferSpace(pos))
+            state.endOfCurrentWord.add(pos)
           else state.add(pos)
       }
       .endOfCurrentWord
@@ -117,8 +134,16 @@ class TextStripperWithPositions extends PDFTextStripper {
           )
         }
       }
+
+      def markEnd = {
+        this.copy(
+          linesToTokens = linesToTokens ++ Map(
+            currentPage -> linesToTokens.getOrElse(currentPage, Line(currentPage, Nil)).addTokens(current)
+          )
+        )
+      }
     }
-    val state = words.foldLeft(State())(_ ++ _)
+    val state = words.foldLeft(State())(_ ++ _).markEnd
 
     state.linesToTokens.foreach {
       case (key, value) =>

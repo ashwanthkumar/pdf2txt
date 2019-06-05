@@ -1,18 +1,27 @@
 package in.ashwanthkumar.pdf2txt
 
+import org.apache.pdfbox.pdmodel.PDDocument
 import org.scalatest.FlatSpec
+
 import scala.collection.JavaConverters._
 
 class TextStripperWithPositionsTest extends FlatSpec {
-  "TextStripperWithPositions" should "capture the current line that we're writing" in {
+  "TextStripperWithPositions" should "process multi-column layout" in {
     val pdfDocument =
       TextStripperWithPositions.readFile(getClass.getResourceAsStream("/pdfs/3_column_layout_with_header_footer.pdf"))
+    pdf2txt(pdfDocument)
+  }
 
-    val page = pdfDocument.getPages.get(0)
+  it should "process page wide tables" in {
+    val pdfDocument =
+      TextStripperWithPositions.readFile(getClass.getResourceAsStream("/pdfs/large_table_with_header.pdf"))
+    pdf2txt(pdfDocument)
+  }
 
+  def pdf2txt(pdfDocument: PDDocument): Unit = {
     val stripper = new TextStripperWithPositions()
     stripper.setSortByPosition(true)
-    val docTxt = stripper.getText(pdfDocument)
+    stripper.getText(pdfDocument)
     println(stripper.totalLines)
 
     pdfDocument.close()
