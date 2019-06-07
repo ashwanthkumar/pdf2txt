@@ -6,11 +6,18 @@ import java.util
 import org.apache.commons.lang3.StringUtils
 import org.apache.pdfbox.io.RandomAccessBufferedFileInputStream
 import org.apache.pdfbox.pdfparser.PDFParser
-import org.apache.pdfbox.pdmodel.PDPage
+import org.apache.pdfbox.pdmodel.{PDDocument, PDPage}
 import org.apache.pdfbox.text.{PDFTextStripper, TextPosition}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+
+case class ParsedResult(
+    xAxisIndex: mutable.TreeMap[Float, List[TextPosition]],
+    yAxisIndex: mutable.TreeMap[Float, List[TextPosition]],
+    textPositions: List[TextPosition],
+    lineToTokens: Map[Int, Line]
+)
 
 case class Token(txt: String, positions: List[TextPosition]) {
   import Token._
@@ -91,7 +98,7 @@ case class Line(lineNumber: Int, tokens: List[Token]) {
 }
 
 // NOT THREAD SAFE, DO NOT USE ACROSS PDDocument instances
-class TextStripperWithPositions extends PDFTextStripper {
+class CharacterParserFromPDF extends PDFTextStripper {
   val _output      = new StringBuffer()
   var currentLine  = 1
   var lineToTokens = mutable.Map[Int, Line]()
@@ -160,12 +167,16 @@ class TextStripperWithPositions extends PDFTextStripper {
     this.textPositions ++= textPositions.asScala.toList
   }
 
+  def parse(document: PDDocument): Unit = {
+    getText(document)
+  }
+
   def tokensByLine = lineToTokens
 
   def totalLines = lineToTokens.size
 }
 
-object TextStripperWithPositions {
+object CharacterParserFromPDF {
   def readFile(input: InputStream) = {
     val parser = new PDFParser(new RandomAccessBufferedFileInputStream(input))
     parser.parse()

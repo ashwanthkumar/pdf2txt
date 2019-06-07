@@ -12,15 +12,15 @@ import scala.concurrent.duration.FiniteDuration
 
 class PDF2Txt(pdfDocument: PDDocument, extraSpacingRatio: Float = 1.05f) {
   def toText: String = {
-    val stripper = new TextStripperWithPositions()
-    stripper.setSortByPosition(true)
-    stripper.getText(pdfDocument)
-    //    println(stripper.totalLines)
+    val parser = new CharacterParserFromPDF()
+    parser.setSortByPosition(true)
+    parser.parse(pdfDocument)
+    //    println(parser.totalLines)
 
     pdfDocument.close()
 
-    //    println(s"Total Lines: ${stripper.totalLines}")
-    val lines = stripper.lineToTokens.values.toList.sortBy(_.lineNumber)
+    //    println(s"Total Lines: ${parser.totalLines}")
+    val lines = parser.lineToTokens.values.toList.sortBy(_.lineNumber)
 
     val maxTxtLengthLine = lines.maxBy(_.length)
     //    println("Max Txt Length Line")
@@ -95,13 +95,13 @@ object PDF2Txt extends App {
 
   val outputFile = new File(output)
   if (outputFile.exists()) {
-    println("Output file already found, deleting it and re-creating it.")
+    println(s"Output file: ${outputFile.getAbsolutePath} already found, deleting it and re-creating it.")
     outputFile.delete()
   }
   lazy val writer = new PrintWriter(outputFile)
 
   val start =  System.nanoTime()
-  val pdfDocument    = TextStripperWithPositions.readFile(new FileInputStream(new File(input)))
+  val pdfDocument    = CharacterParserFromPDF.readFile(new FileInputStream(new File(input)))
   val documentAsText = new PDF2Txt(pdfDocument).toText
   val totalTime = System.nanoTime() - start
   println(s"Processing Took: ${FiniteDuration(totalTime, TimeUnit.NANOSECONDS).toSeconds}s")
