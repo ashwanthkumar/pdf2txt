@@ -2,7 +2,7 @@ import Dependencies._
 
 val buildVersion = sys.env.getOrElse("GO_PIPELINE_LABEL", "0.1.0-SNAPSHOT")
 
-ThisBuild / scalaVersion     := "2.12.8"
+ThisBuild / scalaVersion     := "2.12.14"
 ThisBuild / version          := buildVersion
 ThisBuild / organization     := "in.ashwanthkumar"
 ThisBuild / organizationName := "pdf2txt"

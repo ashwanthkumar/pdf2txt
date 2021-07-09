@@ -20,6 +20,7 @@ object Dependencies {
   val loggingStack = Seq(logbackCore, logbackClassic, slf4jApi, scalaLogging)
 
   val scaldingArgs = "com.twitter" %% "scalding-args" % "0.17.4"
+  val jsoup = "org.jsoup" % "jsoup" % "1.13.1"
 
   val pdfbox = "org.apache.pdfbox" % "pdfbox" % "2.0.15"
   val pdfStack = Seq(pdfbox)
@@ -30,5 +31,5 @@ object Dependencies {
   val mockito = "org.mockito" % "mockito-core" % "2.26.0" % Test
   val testStack = Seq(mockito, scalaTest)
 
-  val rootDependencies = akkaStack ++ Seq(scaldingArgs, lang3) ++ loggingStack ++ pdfStack ++ testStack
+  val rootDependencies = akkaStack ++ Seq(scaldingArgs, lang3, jsoup) ++ loggingStack ++ pdfStack ++ testStack
 }
